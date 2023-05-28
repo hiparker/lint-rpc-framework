@@ -19,18 +19,18 @@
 
 ## 技术介绍
 1. lint-rpc-demo 为使用 lint-rpc框架做的demo，包含一个 consumer 两个provide
-   其中 consumer 开启20个线程 去定时请求 2个 provide，其中一个provide调用了另外一个provide
+   - 其中 consumer 开启20个线程 去定时请求 2个 provide，其中一个provide调用了另外一个provide
 2. lint-rpc-spi 利用SPI技术 固定服务列表扩展模式
-   先支持本地服务列表，后序可扩展成 nacos、zk等服务列表
+   - 先支持本地服务列表，后序可扩展成 nacos、zk等服务列表
 3. lint-rpc-support 为整个框架的核心包
-   其工作的原理便是，使用jdk自身的proxy去动态代理 rpc接口，
-   底层使用netty作为网络通信（懒得使用原生的nio网络模型了，太麻烦了 还需要处理一大堆东西）
-   在netty channel 的 handler中，定义了 protocol 自定义协议，用于规定网络传输格式和为后序jdk序列化做足准备
-   当provide收到请求后，通过序列化的结果，从本地spi库中查询本地服务，并通过反射进行invoke执行
+   - 其工作的原理便是，使用jdk自身的proxy去动态代理 rpc接口，
+   - 底层使用netty作为网络通信（懒得使用原生的nio网络模型了，太麻烦了 还需要处理一大堆东西）
+   - 在netty channel 的 handler中，定义了 protocol 自定义协议，用于规定网络传输格式和为后序jdk序列化做足准备
+   - 当provide收到请求后，通过序列化的结果，从本地spi库中查询本地服务，并通过反射进行invoke执行
 
 **相关技术点（读源码，你可以学习到）**
 ```text
-1. 可插拔式扩展接口（类似与springboot的autoconfigure）
+1. 可扩展接口设计（类似与springboot的autoconfigure）
    SPI
 
 2. 相关设计模式
