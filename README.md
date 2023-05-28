@@ -12,6 +12,11 @@
 | ---------------- |---|
 | Netty版本          | 4.1.90.Final |
 
+## 启动顺序
+1. lint-rpc-demo-provide2 (提供 drink结果 和 drinkListAll)
+2. lint-rpc-demo-provide1 (提供 eat结果 ，同时调用provide2，进行组合结果)
+3. lint-rpc-demo-consumer (分别调用 provide1、provide2)
+
 ## 技术介绍
 1. lint-rpc-demo 为使用 lint-rpc框架做的demo，包含一个 consumer 两个provide
    其中 consumer 开启20个线程 去定时请求 2个 provide，其中一个provide调用了另外一个provide
