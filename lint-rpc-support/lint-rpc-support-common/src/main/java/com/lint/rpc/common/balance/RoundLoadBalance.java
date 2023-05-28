@@ -1,8 +1,6 @@
 package com.lint.rpc.common.balance;
 
 
-import com.lint.rpc.common.annotation.RpcClient;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
