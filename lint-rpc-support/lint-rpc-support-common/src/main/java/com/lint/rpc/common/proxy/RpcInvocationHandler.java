@@ -83,6 +83,8 @@ public class RpcInvocationHandler implements InvocationHandler {
             }
         }catch (RpcException re){
             re.printStackTrace();
+        }finally {
+            CountDownLatchPool.free(requestHeader.getRequestId());
         }
 
         long endTime = System.currentTimeMillis();
