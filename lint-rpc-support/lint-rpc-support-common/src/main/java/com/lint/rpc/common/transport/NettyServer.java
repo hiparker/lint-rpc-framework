@@ -23,8 +23,9 @@ public class NettyServer {
     }
 
     public void init(){
+        int cpuCount = Runtime.getRuntime().availableProcessors();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(getThreadMaxCount(cpuCount));
         ServerBootstrap bs = new ServerBootstrap();
         ChannelFuture bind = bs.channel(NioServerSocketChannel.class)
                 .group(bossGroup, workerGroup)
@@ -49,5 +50,12 @@ public class NettyServer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private int getThreadMaxCount(int cpuCount){
+        int threadCoreCount = cpuCount > 2
+                ?  cpuCount - 1
+                : cpuCount;
+        return Math.max(threadCoreCount, 1);
     }
 }

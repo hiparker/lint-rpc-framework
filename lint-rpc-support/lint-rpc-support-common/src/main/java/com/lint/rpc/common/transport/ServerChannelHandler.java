@@ -25,25 +25,43 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         RequestHeader requestHeader = content.getRequestHeader();
         RequestBody requestBody = content.getRequestBody();
 
+        // 本身可以受到 NettyEventLoop线程 进行多线程执行
+        ProvideServiceSpi spi = ProvideServiceSpi.getInstance();
+        LintService service = spi.getService(requestBody.getName(), requestHeader.getVersion());
+        if(null == service){
+            return;
+        }
+
+        try {
+            Method method = service.getClass().getMethod(requestBody.getMethodName());
+            Object res = method.invoke(service, requestBody.getArgs());
+            requestBody.setRes(res);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        requestHeader.setLength(requestBody.toBytesArray().length);
+        ctx.channel().writeAndFlush(content);
+
         // 转多线程处理
-        ExecuteThread et = ExecuteThread.getInstance();
-        et.execute(()->{
-            ProvideServiceSpi spi = ProvideServiceSpi.getInstance();
-            LintService service = spi.getService(requestBody.getName(), requestHeader.getVersion());
-            if(null == service){
-                return;
-            }
-
-            try {
-                Method method = service.getClass().getMethod(requestBody.getMethodName());
-                Object res = method.invoke(service, requestBody.getArgs());
-                requestBody.setRes(res);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-            requestHeader.setLength(requestBody.toBytesArray().length);
-            ctx.channel().writeAndFlush(content);
-        });
+//        ExecuteThread et = ExecuteThread.getInstance();
+//        et.execute(()->{
+//            ProvideServiceSpi spi = ProvideServiceSpi.getInstance();
+//            LintService service = spi.getService(requestBody.getName(), requestHeader.getVersion());
+//            if(null == service){
+//                return;
+//            }
+//
+//            try {
+//                Method method = service.getClass().getMethod(requestBody.getMethodName());
+//                Object res = method.invoke(service, requestBody.getArgs());
+//                requestBody.setRes(res);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//
+//            requestHeader.setLength(requestBody.toBytesArray().length);
+//            ctx.channel().writeAndFlush(content);
+//        });
     }
 }
