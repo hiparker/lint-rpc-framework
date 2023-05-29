@@ -19,7 +19,7 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        //System.out.println("服务端处理数据......");
+        //System.out.println(Thread.currentThread().getName() + " 服务端处理数据......");
 
         RequestContent content = (RequestContent) msg;
         RequestHeader requestHeader = content.getRequestHeader();
