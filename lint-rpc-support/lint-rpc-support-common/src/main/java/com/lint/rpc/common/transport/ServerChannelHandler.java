@@ -5,15 +5,16 @@ import com.lint.rpc.common.protocol.RequestContent;
 import com.lint.rpc.common.protocol.RequestHeader;
 import com.lint.rpc.common.service.ProvideServiceSpi;
 import com.lint.rpc.common.spi.LintService;
+import com.lint.rpc.common.thread.ExecuteThread;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-
 import java.lang.reflect.Method;
 
 public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
+
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if(!(msg instanceof RequestContent)){
             return;
         }
@@ -24,21 +25,25 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         RequestHeader requestHeader = content.getRequestHeader();
         RequestBody requestBody = content.getRequestBody();
 
-        ProvideServiceSpi spi = ProvideServiceSpi.getInstance();
-        LintService service = spi.getService(requestBody.getName(), requestHeader.getVersion());
-        if(null == service){
-            return;
-        }
+        // 转多线程处理
+        ExecuteThread et = ExecuteThread.getInstance();
+        et.execute(()->{
+            ProvideServiceSpi spi = ProvideServiceSpi.getInstance();
+            LintService service = spi.getService(requestBody.getName(), requestHeader.getVersion());
+            if(null == service){
+                return;
+            }
 
-        Method method = service.getClass().getMethod(requestBody.getMethodName());
-        try {
-            Object res = method.invoke(service, requestBody.getArgs());
-            requestBody.setRes(res);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+            try {
+                Method method = service.getClass().getMethod(requestBody.getMethodName());
+                Object res = method.invoke(service, requestBody.getArgs());
+                requestBody.setRes(res);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
-        requestHeader.setLength(requestBody.toBytesArray().length);
-        ctx.channel().writeAndFlush(content);
+            requestHeader.setLength(requestBody.toBytesArray().length);
+            ctx.channel().writeAndFlush(content);
+        });
     }
 }
