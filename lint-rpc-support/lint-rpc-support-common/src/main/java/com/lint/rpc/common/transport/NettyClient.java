@@ -6,6 +6,11 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+
+import java.net.InetSocketAddress;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -88,4 +93,25 @@ public class NettyClient {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(conf.getAddress().getHostName(), conf.getAddress().getPort());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()){
+            return false;
+        }
+
+        NettyConf selfConf = this.getConf();
+        NettyClient client = (NettyClient) obj;
+        NettyConf clientConf = client.getConf();
+
+        return selfConf.getAddress().getHostName().equals(clientConf.getAddress().getHostName())
+                && selfConf.getAddress().getPort() == clientConf.getAddress().getPort();
+    }
 }

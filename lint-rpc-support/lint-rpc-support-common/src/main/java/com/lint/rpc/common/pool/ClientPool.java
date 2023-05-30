@@ -58,21 +58,28 @@ public final class ClientPool {
         NettyClient ch = null;
         // 如果不相等 优先使用为开辟的新链接
         if(groupNameSet.size() != addressSet.size()){
-            InetSocketAddress address = null;
-            Iterator<InetSocketAddress> iterator = addressSet.stream().iterator();
-            while (iterator.hasNext()){
-                address = iterator.next();
-                String groupName = getGroupName(address);
+            try {
+                rLock.lock();
+                if(groupNameSet.size() != addressSet.size()) {
+                    InetSocketAddress address = null;
+                    Iterator<InetSocketAddress> iterator = addressSet.stream().iterator();
+                    while (iterator.hasNext()){
+                        address = iterator.next();
+                        String groupName = getGroupName(address);
 
-                boolean contains = groupNameSet.contains(groupName);
-                if(!contains){
-                    break;
+                        boolean contains = groupNameSet.contains(groupName);
+                        if(!contains){
+                            break;
+                        }
+                    }
+
+                    ch = createClient(serviceName, address);
+                    if(ch != null){
+                        return put(serviceName, ch);
+                    }
                 }
-            }
-
-            ch = createClient(serviceName, address);
-            if(ch != null){
-                return ch;
+            }finally {
+                rLock.unlock();
             }
         }
 
