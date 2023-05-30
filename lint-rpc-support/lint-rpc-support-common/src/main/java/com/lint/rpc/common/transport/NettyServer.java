@@ -10,6 +10,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+/**
+ * Netty 服务端
+ *
+ * @author 周鹏程
+ * @date 2023-05-26 12:45 PM
+ **/
 public class NettyServer {
 
     private final NettyServerConf conf;

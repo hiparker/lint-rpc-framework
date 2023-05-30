@@ -14,6 +14,12 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
+/**
+ * Netty 客户端
+ *
+ * @author 周鹏程
+ * @date 2023-05-26 12:45 PM
+ **/
 public class NettyClient {
 
     private final NettyConf conf;
